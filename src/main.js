@@ -65,7 +65,8 @@ class MudLLMClient {
       };
       
       this.socket.onmessage = async (event) => {
-        const bytes = await event.data.bytes();
+        const buffer = await event.data.arrayBuffer();
+        const bytes = new Uint8Array(buffer);
         if(bytes[0] === 255) {
           return;
         }
