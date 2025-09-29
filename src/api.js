@@ -9,10 +9,18 @@ class APIClient {
     this.token = token;
   }
 
-  async processMessage(rawMessage) {
+  async processMessage(inputMessage) {
     if (!this.token) {
       throw new Error('API token not set');
     }
+
+    var result = this.enrichMudOutputText(inputMessage);
+
+    return result;
+    
+  }
+
+  async enrichMudOutputText(inputMessage) {
 
     try {
       const response = await fetch(this.apiUrl, {
@@ -26,11 +34,11 @@ class APIClient {
           messages: [
             {
               role: 'system',
-              content: 'You are a helpful assistant that processes MUD (Multi-User Dungeon) game messages. Your job is to translate, summarize, and wrap the raw MUD output into more readable and engaging format for the player. Keep responses concise and focus on the most important information.'
+              content: 'You are a helpful assistant that processes MUD (Multi-User Dungeon) game output messages. Your job is to translate, summarize, and wrap the raw MUD output into more readable and engaging format for the player. Keep responses concise and focus on the most important information.'
             },
             {
               role: 'user',
-              content: `Please process this MUD message and provide a clear, engaging summary: ${rawMessage}`
+              content: `Please process this MUD message and provide a clear, engaging summary: ${inputMessage}`
             }
           ]
         })
@@ -46,7 +54,9 @@ class APIClient {
       console.error('API request error:', error);
       return `Error processing message: ${error.message}`;
     }
+
   }
+
 }
 
 export default APIClient;
