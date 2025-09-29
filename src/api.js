@@ -22,7 +22,7 @@ class APIClient {
           'Authorization': `Bearer ${this.token}`
         },
         body: JSON.stringify({
-          model: 'gpt-3.5-turbo',
+          model: 'DevBoost/OpenAI/gpt-4.1-mini',
           messages: [
             {
               role: 'system',
@@ -32,9 +32,7 @@ class APIClient {
               role: 'user',
               content: `Please process this MUD message and provide a clear, engaging summary: ${rawMessage}`
             }
-          ],
-          max_tokens: 150,
-          temperature: 0.7
+          ]
         })
       });
 

@@ -62,16 +62,16 @@ class MudLLMClient {
         this.isConnected = true;
         this.ui.updateConnectionStatus('Connected', true);
         this.ui.showGameInterface();
-        
-        // Send authentication
-        this.sendToMUD(loginData.username);
-        setTimeout(() => {
-          this.sendToMUD(loginData.password);
-        }, 1000);
       };
       
-      this.socket.onmessage = (event) => {
-        this.handleMudMessage(event.data);
+      this.socket.onmessage = async (event) => {
+        const bytes = await event.data.bytes();
+        if(bytes[0] === 255) {
+          return;
+        }
+        const text = await event.data.text();
+        console.log(event, text);
+        this.handleMudMessage(text);
       };
       
       this.socket.onclose = () => {
