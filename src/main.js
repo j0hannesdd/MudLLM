@@ -115,6 +115,7 @@ class MudLLMClient {
     try {
       // Process with LLM
       const llmResponse = await this.api.processMessage(rawMessage);
+      await this.api.processMessageForImage(rawMessage);
       this.ui.addLLMMessage(llmResponse, false);
     } catch (error) {
       console.error('Error processing message with LLM:', error);
