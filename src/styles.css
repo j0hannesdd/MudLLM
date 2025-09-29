@@ -34,3 +34,9 @@
 .message-fade-in {
   animation: fadeIn 0.3s ease-out;
 }
+
+/* Preserve newlines in LLM output */
+#llm-output,
+#llm-output > div {
+  white-space: pre-wrap;
+}
