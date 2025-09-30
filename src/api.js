@@ -265,9 +265,6 @@ class APIClient {
   }
 
   async transformUserInputToMudCommand(inputMessage) {
-
-    debugger;
-
     try {
       const response = await fetch(this.apiUrl + 'v1/chat/completions', {
         method: 'POST',
@@ -304,9 +301,7 @@ class APIClient {
       console.error('API request error:', error);
       return `Error processing message: ${error.message}`;
     }
-
   }
-
 }
 
 const mudDescription = `Description

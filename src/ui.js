@@ -11,6 +11,7 @@ class UI {
       rawLog: document.getElementById('raw-log'),
       userInput: document.getElementById('user-input'),
       sendBtn: document.getElementById('send-btn'),
+      sendRawBtn: document.getElementById('send-raw-btn'),
       connectionStatus: document.getElementById('connection-status'),
       quickActionBar: document.getElementById('quick-actions-bar')
     };
@@ -21,12 +22,15 @@ class UI {
     // Handle enter key in input fields
     this.elements.userInput.addEventListener('keypress', (e) => {
       if (e.key === 'Enter') {
-        this.onSendMessage();
+        this.onSendMessage(true);
       }
     });
 
     this.elements.sendBtn.addEventListener('click', () => {
-      this.onSendMessage();
+      this.onSendMessage(true);
+    });
+    this.elements.sendRawBtn.addEventListener('click', () => {
+      this.onSendMessage(false);
     });
 
     this.elements.connectBtn.addEventListener('click', () => {

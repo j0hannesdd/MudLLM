@@ -75,7 +75,7 @@ class MudLLMClient {
     }
   }
 
-  async handleSendMessage() {
+  async handleSendMessage(enhance) {
     const message = this.ui.getUserInput();
 
     if (!message) return;
@@ -88,11 +88,14 @@ class MudLLMClient {
     // Show user message in LLM output
     this.ui.addLLMMessage(message, true);
 
-    //Transform to the input an actual MUD command
-    var mudCommand = await this.api.processUserInputMessage(message);
+    let mudCommand = message;
+    if (enhance) {
+      //Transform to the input an actual MUD command
+      mudCommand = await this.api.processUserInputMessage(message);
+    }
 
     // Send to MUD
-    this.sendToMUD(mudCommand);
+    this.mud.sendToMUD(mudCommand);
 
     // Clear input
     this.ui.clearInput();
