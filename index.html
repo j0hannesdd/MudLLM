@@ -32,14 +32,6 @@
               <label class="block text-sm font-medium mb-1">MUD URL</label>
               <input type="text" id="mud-url" value="wss://discworld.starturtle.net:4244" class="w-full px-3 py-2 bg-gray-700 bg-opacity-70 border border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
             </div>
-            <div>
-              <label class="block text-sm font-medium mb-1">Username</label>
-              <input type="text" id="username" class="w-full px-3 py-2 bg-gray-700 bg-opacity-70 border border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="Your username">
-            </div>
-            <div>
-              <label class="block text-sm font-medium mb-1">Password</label>
-              <input type="password" id="password" class="w-full px-3 py-2 bg-gray-700 bg-opacity-70 border border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="Your password">
-            </div>
             <button id="connect-btn" class="w-full bg-blue-600 hover:bg-blue-700 px-4 py-2 rounded-md font-medium transition-colors">Connect</button>
           </div>
         </div>
@@ -47,12 +39,12 @@
         <!-- Game Interface (hidden initially) -->
         <div
           id="game-interface"
-          class="hidden relative grid grid-cols-1 lg:grid-cols-2 gap-6 max-w-5xl mx-auto w-full">
+          class="hidden relative grid grid-cols-1 lg:grid-cols-4 gap-6 max-w-5xl mx-auto w-full">
 
           <!-- LLM Output -->
-          <div class="bg-gray-800 bg-opacity-50 rounded-lg p-4">
+          <div class="bg-gray-800 bg-opacity-50 rounded-lg p-4 lg:col-span-3">
             <h3 class="text-lg font-semibold mb-2">LLM Enhanced Output</h3>
-            <div id="llm-output" class="h-64 overflow-y-auto bg-gray-900 bg-opacity-50 p-3 rounded border text-sm mb-4 scroll-container"></div>
+            <div id="llm-output" class="h-80 overflow-y-auto bg-gray-900 bg-opacity-50 p-3 rounded border text-sm mb-4 scroll-container"></div>
             <div class="flex space-x-2">
               <input type="text" id="user-input" class="flex-1 px-3 py-2 bg-gray-700 bg-opacity-70 border border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="Type your command...">
               <button id="send-btn" class="bg-green-600 hover:bg-green-700 px-4 py-2 rounded-md font-medium transition-colors">Send</button>
@@ -60,16 +52,16 @@
           </div>
 
           <!-- Raw Log -->
-          <div class="bg-gray-800 bg-opacity-50 rounded-lg p-4">
+          <div class="bg-gray-800 bg-opacity-50 rounded-lg p-4 lg:col-span-1">
             <h3 class="text-lg font-semibold mb-2">Raw MUD Messages</h3>
-            <div id="raw-log" class="h-64 overflow-y-auto bg-gray-900 bg-opacity-50 p-3 rounded border text-sm font-mono scroll-container"></div>
+            <div id="raw-log" class="h-80 overflow-y-auto bg-gray-900 bg-opacity-50 p-3 rounded border text-sm font-mono scroll-container"></div>
             <div class="mt-2 text-sm text-gray-400">
               Status: <span id="connection-status" class="font-medium">Disconnected</span>
             </div>
           </div>
 
           <!-- Quick Actions Bar -->
-          <div id="quick-actions-bar" class="col-span-1 lg:col-span-2 flex flex-wrap gap-2 justify-center mt-2 bg-gray-800 bg-opacity-50 rounded-lg p-4">
+          <div id="quick-actions-bar" class="col-span-1 lg:col-span-4 flex flex-wrap gap-2 justify-center mt-2 bg-gray-800 bg-opacity-50 rounded-lg p-4">
             <button class="bg-blue-700 bg-opacity-80 hover:bg-blue-800 px-4 py-2 rounded-md text-sm font-medium">Go North</button>
             <button class="bg-blue-700 bg-opacity-80 hover:bg-blue-800 px-4 py-2 rounded-md text-sm font-medium">Look</button>
             <button class="bg-blue-700 bg-opacity-80 hover:bg-blue-800 px-4 py-2 rounded-md text-sm font-medium">Inventory</button>

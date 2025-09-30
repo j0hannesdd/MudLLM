@@ -6,8 +6,6 @@ class UI {
       gameInterface: document.getElementById('game-interface'),
       tokenInput: document.getElementById('token'),
       mudUrlInput: document.getElementById('mud-url'),
-      usernameInput: document.getElementById('username'),
-      passwordInput: document.getElementById('password'),
       connectBtn: document.getElementById('connect-btn'),
       llmOutput: document.getElementById('llm-output'),
       rawLog: document.getElementById('raw-log'),
@@ -36,7 +34,7 @@ class UI {
     });
 
     // Handle enter in login form fields
-    [this.elements.tokenInput, this.elements.mudUrlInput, this.elements.usernameInput, this.elements.passwordInput].forEach(input => {
+    [this.elements.tokenInput, this.elements.mudUrlInput].forEach(input => {
       input.addEventListener('keypress', (e) => {
         if (e.key === 'Enter') {
           this.onConnect();
@@ -99,9 +97,7 @@ class UI {
   getLoginData() {
     return {
       token: this.elements.tokenInput.value.trim(),
-      mudUrl: this.elements.mudUrlInput.value.trim(),
-      username: this.elements.usernameInput.value.trim(),
-      password: this.elements.passwordInput.value
+      mudUrl: this.elements.mudUrlInput.value.trim()
     };
   }
 
