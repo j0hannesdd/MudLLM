@@ -1,13 +1,13 @@
 import './styles.css'
 import UI from './ui.js'
 import APIClient from './api.js'
+import Mud from './mud.js'
 
 class MudLLMClient {
   constructor() {
     this.ui = new UI();
-    this.api = new APIClient();
-    this.socket = null;
-    this.isConnected = false;
+    this.api = new APIClient(this.ui);
+    this.mud = new Mud(this.ui, this.api, this.handleMudMessage.bind(this));
 
     // Bind UI callbacks
     this.ui.onConnect = this.handleConnect.bind(this);
@@ -17,92 +17,43 @@ class MudLLMClient {
   }
 
   async handleConnect() {
-    if (this.isConnected) {
-      this.disconnect();
+    if (this.mud.isConnected) {
+      this.mud.disconnect();
       return;
     }
 
-    const loginData = this.ui.getLoginData();
+    this.ui.showConnecting();
 
-    // Validate inputs
-    if (!loginData.token) {
-      this.ui.showError('API token is required');
-      return;
-    }
+    // delay execution to be able to see loading indicator
+    setTimeout(async () => {
+      const loginData = this.ui.getLoginData();
 
-    if (!loginData.mudUrl) {
-      this.ui.showError('MUD URL is required');
-      return;
-    }
+      // Validate inputs
+      if (!loginData.token) {
+        this.ui.showError('API token is required');
+        this.ui.clearConnecting(false);
+        return;
+      }
 
-    if (!loginData.username || !loginData.password) {
-      this.ui.showError('Username and password are required');
-      return;
-    }
+      if (!loginData.mudUrl) {
+        this.ui.showError('MUD URL is required');
+        this.ui.clearConnecting(false);
+        return;
+      }
 
-    try {
-      await this.connect(loginData);
-    } catch (error) {
-      this.ui.showError(`Connection failed: ${error.message}`);
-    }
-  }
+      if (!loginData.username || !loginData.password) {
+        this.ui.showError('Username and password are required');
+        this.ui.clearConnecting(false);
+        return;
+      }
 
-  async connect(loginData) {
-    this.ui.updateConnectionStatus('Connecting...', false);
-
-    try {
-      // Set API token
-      this.api.setToken(loginData.token);
-
-      // Create WebSocket connection
-      this.socket = new WebSocket(loginData.mudUrl);
-
-      this.socket.onopen = () => {
-        console.log('WebSocket connected');
-        this.isConnected = true;
-        this.ui.updateConnectionStatus('Connected', true);
-        this.ui.showGameInterface();
-      };
-
-      this.socket.onmessage = async (event) => {
-        const buffer = await event.data.arrayBuffer();
-        const bytes = new Uint8Array(buffer);
-        if (bytes[0] === 255) {
-          return;
-        }
-        const text = await event.data.text();
-        console.log(event, text);
-        this.handleMudMessage(text);
-      };
-
-      this.socket.onclose = () => {
-        console.log('WebSocket disconnected');
-        this.isConnected = false;
-        this.ui.updateConnectionStatus('Disconnected', false);
-        this.ui.hideGameInterface();
-      };
-
-      this.socket.onerror = (error) => {
-        console.error('WebSocket error:', error);
-        this.ui.showError('WebSocket connection error');
-        this.isConnected = false;
-        this.ui.updateConnectionStatus('Connection Error', false);
-      };
-
-    } catch (error) {
-      this.ui.updateConnectionStatus('Connection Failed', false);
-      throw error;
-    }
-  }
-
-  disconnect() {
-    if (this.socket) {
-      this.socket.close();
-      this.socket = null;
-    }
-    this.isConnected = false;
-    this.ui.updateConnectionStatus('Disconnected', false);
-    this.ui.hideGameInterface();
+      try {
+        await this.mud.connect(loginData);
+      } catch (error) {
+        this.ui.clearConnecting(false);
+        this.ui.showError(`Connection failed: ${error.message}`);
+      }
+    }, 100)
   }
 
   async handleMudMessage(rawMessage) {
@@ -112,12 +63,20 @@ class MudLLMClient {
     // Skip empty messages
     if (!rawMessage.trim()) return;
 
+    // show spinner / "Thinking..."
+    this.ui.showLLMLoading();
+
     try {
-      // Process with LLM
       const llmResponse = await this.api.processMessage(rawMessage);
+
+      // remove spinner
+      this.ui.clearLLMLoading();
+
+      // then append the real LLM output
       this.ui.addLLMMessage(llmResponse, false);
+
     } catch (error) {
-      console.error('Error processing message with LLM:', error);
+      this.ui.clearLLMLoading();
       this.ui.addLLMMessage(`Error: ${error.message}`, false);
     }
   }
@@ -127,7 +86,7 @@ class MudLLMClient {
 
     if (!message) return;
 
-    if (!this.isConnected) {
+    if (!this.mud.isConnected) {
       this.ui.showError('Not connected to MUD');
       return;
     }
@@ -145,13 +104,18 @@ class MudLLMClient {
     this.ui.clearInput();
   }
 
-  sendToMUD(message) {
-    if (this.socket && this.socket.readyState === WebSocket.OPEN) {
-      this.socket.send(message + '\n');
-      console.log('Sent to MUD:', message);
-    } else {
-      this.ui.showError('Cannot send message: not connected');
+  handleAction(action) {
+    console.log('Action triggered:', action);
+    if (!this.mud.isConnected) {
+      this.ui.showError('Not connected to MUD');
+      return;
     }
+
+    // Show user message in LLM output
+    this.ui.addLLMMessage(action, true);
+
+    // Send to MUD
+    this.mud.sendToMUD(action);
   }
 }
 
