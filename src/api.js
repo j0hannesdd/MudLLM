@@ -156,7 +156,19 @@ class APIClient {
     this.imageGenerating = true;
     try {
       // should we actually generate a new image?
-      const shouldGenerate = await this.helperPrompt('Does this message describe a new scene or location in a fantasy MUD game, suitable for generating a background image? Respond with "yes" or "no". Message: ' + rawMessage);
+      const shouldGenerate = await this.helperPrompt(`
+        You are analyzing a message from a fantasy MUD game to determine if it describes a new scene or location that would benefit from a background image. Respond only with yes" or "no".
+        Consider "yes" if the message:
+        - Introduces or clearly describes a new room, area, or environment different from previous messages.
+        - Mentions landmarks, structures, notable surroundings, or changes in scenery.
+        - Provides rich, immersive details implying the player has moved to a new place worth visualizing.
+        - Includes sensory or atmospheric elements that set a distinct mood or feel for a location.
+        Consider "no" if the message:
+        - Contains only status updates, inventory info, combat actions, or player dialogue.
+        - Describes ongoing events in the same location without introducing new scenery.
+        - Is mostly technical, administrative, or unrelated to environmental description.
+        Be generous when in doubt—if the message suggests a scene or location distinct enough that visual context would enhance the player’s experience, answer "yes."
+        Message to analyze:` + rawMessage);
 
       if (!shouldGenerate.toLowerCase().includes('yes')) {
         console.log('No new image needed.');
