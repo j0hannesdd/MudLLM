@@ -8,12 +8,11 @@ class MudLLMClient {
     this.ui = new UI();
     this.api = new APIClient(this.ui);
     this.mud = new Mud(this.ui, this.api, this.handleMudMessage.bind(this));
-    
+
     // Bind UI callbacks
     this.ui.onConnect = this.handleConnect.bind(this);
     this.ui.onSendMessage = this.handleSendMessage.bind(this);
-    this.ui.onQuickAction = this.handleAction.bind(this);
-    
+
     console.log('MudLLM Client initialized');
   }
 
@@ -28,22 +27,16 @@ class MudLLMClient {
     // delay execution to be able to see loading indicator
     setTimeout(async () => {
       const loginData = this.ui.getLoginData();
-      
+
       // Validate inputs
       if (!loginData.token) {
         this.ui.showError('API token is required');
         this.ui.clearConnecting(false);
         return;
       }
-      
+
       if (!loginData.mudUrl) {
         this.ui.showError('MUD URL is required');
-        this.ui.clearConnecting(false);
-        return;
-      }
-      
-      if (!loginData.username || !loginData.password) {
-        this.ui.showError('Username and password are required');
         this.ui.clearConnecting(false);
         return;
       }
@@ -68,7 +61,7 @@ class MudLLMClient {
     this.ui.showLLMLoading();
 
     try {
-      const llmResponse = await this.api.processMessage(rawMessage);
+      const llmResponse = await this.api.processMudOutputMessage(rawMessage);
 
       // remove spinner
       this.ui.clearLLMLoading();
@@ -82,22 +75,25 @@ class MudLLMClient {
     }
   }
 
-  handleSendMessage() {
+  async handleSendMessage() {
     const message = this.ui.getUserInput();
-    
+
     if (!message) return;
-    
+
     if (!this.mud.isConnected) {
       this.ui.showError('Not connected to MUD');
       return;
     }
-    
+
     // Show user message in LLM output
     this.ui.addLLMMessage(message, true);
-    
+
+    //Transform to the input an actual MUD command
+    var mudCommand = await this.api.processUserInputMessage(message);
+
     // Send to MUD
-    this.mud.sendToMUD(message);
-    
+    this.sendToMUD(mudCommand);
+
     // Clear input
     this.ui.clearInput();
   }
@@ -108,10 +104,10 @@ class MudLLMClient {
       this.ui.showError('Not connected to MUD');
       return;
     }
-    
+
     // Show user message in LLM output
     this.ui.addLLMMessage(action, true);
-    
+
     // Send to MUD
     this.mud.sendToMUD(action);
   }
