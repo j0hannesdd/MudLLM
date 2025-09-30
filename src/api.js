@@ -34,11 +34,11 @@ class APIClient {
           messages: [
             {
               role: 'system',
-              content: 'You are a helpful assistant that processes MUD (Multi-User Dungeon) game output messages. Your job is to translate, summarize, and wrap the raw MUD output into more readable and engaging format for the player. Keep responses concise and focus on the most important information.'
+              content: 'You are a helpful assistant that processes MUD (Multi-User Dungeon) game messages. Your job is to translate, summarize, and wrap the raw MUD output into more readable and engaging format for the player. Keep responses concise and focus on the most important information. Be precise in what options user can choose. Act as a game, do not say to the user that games says something, user see you and you are a game already to him.'
             },
             {
               role: 'user',
-              content: `Please process this MUD message and provide a clear, engaging summary: ${inputMessage}`
+              content: `Please process this MUD message and provide a clear, engaging summary, with clear message to the user what are the options for next interaction: ${inputMessage}`
             }
           ]
         })

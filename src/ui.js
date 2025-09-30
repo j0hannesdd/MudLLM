@@ -53,6 +53,8 @@ class UI {
   hideGameInterface() {
     this.elements.loginForm.classList.remove('hidden');
     this.elements.gameInterface.classList.add('hidden');
+    
+    this.clearGameOutput();
   }
 
   updateConnectionStatus(status, isConnected = false) {
@@ -61,7 +63,6 @@ class UI {
       ? 'font-medium text-green-400' 
       : 'font-medium text-red-400';
     
-    this.elements.connectBtn.textContent = isConnected ? 'Disconnect' : 'Connect';
     this.elements.connectBtn.disabled = false;
   }
 
@@ -125,6 +126,64 @@ class UI {
   // Callback functions to be set by main.js
   onConnect() {}
   onSendMessage() {}
+
+  showConnecting() {
+    const btn = this.elements.connectBtn
+    // disable so it can't be clicked again
+    btn.disabled = true
+    // add a simple spinner + text
+    btn.innerHTML = `
+      <svg class="animate-spin inline-block mr-2 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+        <path class="opacity-75" fill="currentColor"
+          d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z">
+        </path>
+      </svg>
+      Connecting…
+    `
+  }
+
+  // Call this when connection either succeeds or fails
+  clearConnecting(isConnected) {
+    const btn = this.elements.connectBtn
+    btn.disabled = false
+    btn.textContent = isConnected ? 'Disconnect' : 'Connect'
+  }
+
+  /**
+   * Show a small spinner + "Thinking..."
+   * Appends into #llm-output and scrolls to bottom.
+   */
+  showLLMLoading() {
+    // always clear any old loader
+    this.clearLLMLoading();
+
+    const loader = document.createElement('div');
+    loader.id = 'llm-loading';
+    loader.className = 'mb-3 p-2 rounded bg-gray-700 text-center flex items-center justify-center';
+    loader.innerHTML = `
+      <svg class="animate-spin h-5 w-5 text-gray-400 mr-2" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+        <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z"></path>
+      </svg>
+      Thinking...
+    `;
+    this.elements.llmOutput.appendChild(loader);
+    this.elements.llmOutput.scrollTop = this.elements.llmOutput.scrollHeight;
+  }
+
+  /**
+   * Remove the loader if it’s there.
+   */
+  clearLLMLoading() {
+    const old = this.elements.llmOutput.querySelector('#llm-loading');
+    if (old) old.remove();
+  }
+
+  clearGameOutput() {
+    this.elements.llmOutput.innerHTML = '';
+    this.elements.rawLog.innerHTML = '';
+  }
 }
 
 export default UI;
