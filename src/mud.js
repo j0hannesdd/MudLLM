@@ -83,7 +83,7 @@ class Mud {
         this.ui.hideGameInterface();
     }
 
-    sendToMUD(message) {
+    send(message) {
         if (this.socket && this.socket.readyState === WebSocket.OPEN) {
             this.socket.send(message + '\n');
             console.log('Sent to MUD:', message);

@@ -9,6 +9,7 @@ class MudLLMClient {
     this.api = new APIClient(this.ui);
     this.mud = new Mud(this.ui, this.api, this.handleMudMessage.bind(this));
 
+
     // Bind UI callbacks
     this.ui.onConnect = this.handleConnect.bind(this);
     this.ui.onSendMessage = this.handleSendMessage.bind(this);
@@ -43,6 +44,7 @@ class MudLLMClient {
 
       try {
         await this.mud.connect(loginData);
+        this.api.initializeMessageCache();
       } catch (error) {
         this.ui.clearConnecting(false);
         this.ui.showError(`Connection failed: ${error.message}`);
@@ -92,7 +94,7 @@ class MudLLMClient {
     var mudCommand = await this.api.processUserInputMessage(message);
 
     // Send to MUD
-    this.sendToMUD(mudCommand);
+    this.mud.send(mudCommand);
 
     // Clear input
     this.ui.clearInput();
@@ -109,7 +111,7 @@ class MudLLMClient {
     this.ui.addLLMMessage(action, true);
 
     // Send to MUD
-    this.mud.sendToMUD(action);
+    this.mud.send(action);
   }
 }
 

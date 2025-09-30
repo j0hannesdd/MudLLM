@@ -5,10 +5,15 @@ class APIClient {
     this.token = null;
     this.imageGenerating = false;
     this.ui = ui;
+    this.mostRecentMudMessages = null;
   }
 
   setToken(token) {
     this.token = token;
+  }
+
+  initializeMessageCache() {
+    this.mostRecentMudMessages = new Array(5);
   }
 
   async processUserInputMessage(inputMessage) {
@@ -34,6 +39,9 @@ class APIClient {
     // get the enriched text
     var result = this.enrichMudOutputText(inputMessage);
 
+    if (this.mostRecentMudMessages.length == 5)
+      this.mostRecentMudMessages.shift();
+    this.mostRecentMudMessages.push(inputMessage);
     return result;
 
   }
@@ -192,7 +200,20 @@ class APIClient {
 
   async transformUserInputToMudCommand(inputMessage) {
 
-    debugger;
+    let messagesToSend = new Array();
+    messagesToSend.concat(systemMessages);
+    let lastMessagesPrompt = 'To give you some information about the current context of the game, these are five most recent messages from MUD: ';
+    for (let i = 0; i < this.mostRecentMudMessages.length; i++) {
+      lastMessagesPrompt += '\n' + this.mostRecentMudMessages[i];
+    }
+    messagesToSend.push({
+      role: 'user',
+      content: lastMessagesPrompt
+    });
+    messagesToSend.push({
+      role: 'user',
+      content: `Input to transform: '${inputMessage}'. Output only the exact command string that can be fed directly to the MUD engine—no extra commentary or explanation. Output should contain one command.`
+    });
 
     try {
       const response = await fetch(this.apiUrl + 'v1/chat/completions', {
@@ -203,20 +224,7 @@ class APIClient {
         },
         body: JSON.stringify({
           model: 'DevBoost/OpenAI/gpt-4.1-mini',
-          messages: [
-            {
-              role: 'system',
-              content: mudDescription
-            },
-            {
-              role: 'system',
-              content: systemInstructionUserToMud
-            },
-            {
-              role: 'user',
-              content: inputMessage
-            }
-          ]
+          messages: messagesToSend
         })
       });
 
@@ -315,5 +323,15 @@ unkeep <object>	allow an object to be sold after previously being kept
 Note: buy, list and browse are the only commands used in all shops. Sell and value can only be used in specific stores.`;
 
 const systemInstructionUserToMud = 'You are a MUD command translator. When a user writes any natural-language instruction, transform it into a valid MUD command line with correct syntax and parameters. Output only the exact command string that can be fed directly to the MUD engine—no extra commentary or explanation.';
+
+const systemMessages = [
+  {
+    role: 'system',
+    content: mudDescription
+  },
+  {
+    role: 'system',
+    content: systemInstructionUserToMud
+  },];
 
 export default APIClient;
