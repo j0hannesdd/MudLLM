@@ -27,29 +27,38 @@ class MudLLMClient {
       return;
     }
 
-    const loginData = this.ui.getLoginData();
-    
-    // Validate inputs
-    if (!loginData.token) {
-      this.ui.showError('API token is required');
-      return;
-    }
-    
-    if (!loginData.mudUrl) {
-      this.ui.showError('MUD URL is required');
-      return;
-    }
-    
-    if (!loginData.username || !loginData.password) {
-      this.ui.showError('Username and password are required');
-      return;
-    }
+    this.ui.showConnecting();
 
-    try {
-      await this.connect(loginData);
-    } catch (error) {
-      this.ui.showError(`Connection failed: ${error.message}`);
-    }
+    // delay execution to be able to see loading indicator
+    setTimeout(async () => {
+      const loginData = this.ui.getLoginData();
+      
+      // Validate inputs
+      if (!loginData.token) {
+        this.ui.showError('API token is required');
+        this.ui.clearConnecting(false);
+        return;
+      }
+      
+      if (!loginData.mudUrl) {
+        this.ui.showError('MUD URL is required');
+        this.ui.clearConnecting(false);
+        return;
+      }
+      
+      if (!loginData.username || !loginData.password) {
+        this.ui.showError('Username and password are required');
+        this.ui.clearConnecting(false);
+        return;
+      }
+
+      try {
+        await this.connect(loginData);
+      } catch (error) {
+        this.ui.clearConnecting(false);
+        this.ui.showError(`Connection failed: ${error.message}`);
+      }
+    }, 100)
   }
 
   async connect(loginData) {
@@ -93,6 +102,7 @@ class MudLLMClient {
         this.ui.showError('WebSocket connection error');
         this.isConnected = false;
         this.ui.updateConnectionStatus('Connection Error', false);
+        this.ui.clearConnecting(false);
       };
       
     } catch (error) {
@@ -114,16 +124,24 @@ class MudLLMClient {
   async handleMudMessage(rawMessage) {
     // Log raw message
     this.ui.addRawMessage(rawMessage);
-    
+
     // Skip empty messages
     if (!rawMessage.trim()) return;
-    
+
+    // show spinner / "Thinking..."
+    this.ui.showLLMLoading();
+
     try {
-      // Process with LLM
       const llmResponse = await this.api.processMessage(rawMessage);
+
+      // remove spinner
+      this.ui.clearLLMLoading();
+
+      // then append the real LLM output
       this.ui.addLLMMessage(llmResponse, false);
+
     } catch (error) {
-      console.error('Error processing message with LLM:', error);
+      this.ui.clearLLMLoading();
       this.ui.addLLMMessage(`Error: ${error.message}`, false);
     }
   }
