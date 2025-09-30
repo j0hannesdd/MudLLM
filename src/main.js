@@ -41,12 +41,6 @@ class MudLLMClient {
         return;
       }
 
-      if (!loginData.username || !loginData.password) {
-        this.ui.showError('Username and password are required');
-        this.ui.clearConnecting(false);
-        return;
-      }
-
       try {
         await this.mud.connect(loginData);
       } catch (error) {
