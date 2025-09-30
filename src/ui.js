@@ -1,6 +1,6 @@
 // UI module for managing the interface
 class UI {
-  constructor(onQuickAction) {
+  constructor() {
     this.elements = {
       loginForm: document.getElementById('login-form'),
       gameInterface: document.getElementById('game-interface'),

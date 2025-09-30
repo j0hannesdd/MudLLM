@@ -12,6 +12,7 @@ class MudLLMClient {
     // Bind UI callbacks
     this.ui.onConnect = this.handleConnect.bind(this);
     this.ui.onSendMessage = this.handleSendMessage.bind(this);
+    this.ui.onQuickAction = this.handleAction.bind(this);
 
     console.log('MudLLM Client initialized');
   }
