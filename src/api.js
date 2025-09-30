@@ -21,7 +21,8 @@ class APIClient {
     this.processMessageForActions(inputMessage);
 
     // get the enriched text
-    var result = this.enrichMudOutputText(inputMessage);
+    var result = await this.enrichMudOutputText(inputMessage);
+    // this.readOutLoud(result);
 
     return result;
 
@@ -146,6 +147,43 @@ class APIClient {
     } finally {
       this.imageGenerating = false;
     }
+  }
+
+  async readOutLoud(text) {
+    const response = await fetch(this.apiUrl + 'v1/audio/speech', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${this.token}`,
+        'Accept': 'audio/mpeg'
+      },
+      body: JSON.stringify({
+        model: "DevBoost/OpenAI/gpt-4o-mini-tts",
+        input: text,
+        voice: "ash",
+        response_format: "mp3"
+      })
+    });
+
+    if (!response.ok) {
+      console.warn('Text-to-speech request failed:', response.status, response.statusText);
+      return;
+    }
+    const blob = await response.blob(); // No streaming!
+    const audioUrl = URL.createObjectURL(blob);
+    const audio = new Audio(audioUrl);
+    audio.play();
+
+
+    // if (!('speechSynthesis' in window)) {
+    //   console.warn('Text-to-speech not supported in this browser.');
+    //   return;
+    // }
+    // const utterance = new SpeechSynthesisUtterance(text);
+    // utterance.lang = 'en-US';
+    // utterance.rate = 1;
+    // utterance.pitch = 1;
+    // window.speechSynthesis.speak(utterance);
   }
 
   async helperPrompt(inputMessage) {
