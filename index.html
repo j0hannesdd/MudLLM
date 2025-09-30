@@ -7,55 +7,62 @@
     <title>MudLLM - LLM Enhanced MUD Client</title>
   </head>
   <body class="bg-gray-900 text-white min-h-screen">
-    <div id="app">
-      <div class="container mx-auto p-4">
-        <h1 class="text-3xl font-bold mb-6 text-center">MudLLM Client</h1>
-        
+    <div id="app" class="relative min-h-screen flex flex-col">
+      <img
+        id="background-image"
+        src="/assets/fallback.png"
+        class="fixed inset-0 w-full h-full object-cover z-0 pointer-events-none"
+      />
+
+      <div class="relative z-10 flex flex-col min-h-screen justify-center">
+
+        <h1 class="text-3xl font-bold mb-6 text-center bg-gray-900 bg-opacity-50 rounded-lg mx-auto px-6 py-2 shadow-lg">
+          MudLLM Client
+        </h1>
+
         <!-- Login Form -->
-        <div id="login-form" class="max-w-md mx-auto bg-gray-800 p-6 rounded-lg shadow-lg mb-6">
+        <div id="login-form" class="max-w-md mx-auto bg-gray-800 bg-opacity-50 p-6 rounded-lg shadow-lg mb-6">
           <h2 class="text-xl font-semibold mb-4">Connect to MUD</h2>
           <div class="space-y-4">
             <div>
               <label class="block text-sm font-medium mb-1">API Token</label>
-              <input type="password" id="token" class="w-full px-3 py-2 bg-gray-700 border border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="Enter your API token">
+              <input type="password" id="token" class="w-full px-3 py-2 bg-gray-700 bg-opacity-70 border border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="Enter your API token">
             </div>
             <div>
               <label class="block text-sm font-medium mb-1">MUD URL</label>
-              <input type="text" id="mud-url" value="wss://discworld.starturtle.net:4244" class="w-full px-3 py-2 bg-gray-700 border border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+              <input type="text" id="mud-url" value="wss://discworld.starturtle.net:4244" class="w-full px-3 py-2 bg-gray-700 bg-opacity-70 border border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
             </div>
             <div>
               <label class="block text-sm font-medium mb-1">Username</label>
-              <input type="text" id="username" class="w-full px-3 py-2 bg-gray-700 border border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="Your username">
+              <input type="text" id="username" class="w-full px-3 py-2 bg-gray-700 bg-opacity-70 border border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="Your username">
             </div>
             <div>
               <label class="block text-sm font-medium mb-1">Password</label>
-              <input type="password" id="password" class="w-full px-3 py-2 bg-gray-700 border border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="Your password">
+              <input type="password" id="password" class="w-full px-3 py-2 bg-gray-700 bg-opacity-70 border border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="Your password">
             </div>
             <button id="connect-btn" class="w-full bg-blue-600 hover:bg-blue-700 px-4 py-2 rounded-md font-medium transition-colors">Connect</button>
           </div>
         </div>
 
         <!-- Game Interface (hidden initially) -->
-        <div id="game-interface" class="hidden grid grid-cols-1 lg:grid-cols-2 gap-6">
-          <!-- Generated background image -->
-          <div class="bg-gray-800 rounded-lg p-4 flex items-center justify-center">
-            <img id="background-image" src="data:image/png;base64," alt="Background" class="max-w-full max-h-64 rounded-md border border-gray-600">
-          </div>
+        <div
+          id="game-interface"
+          class="hidden relative grid grid-cols-1 lg:grid-cols-2 gap-6 max-w-5xl mx-auto w-full">
 
           <!-- LLM Output -->
-          <div class="bg-gray-800 rounded-lg p-4">
+          <div class="bg-gray-800 bg-opacity-50 rounded-lg p-4">
             <h3 class="text-lg font-semibold mb-2">LLM Enhanced Output</h3>
-            <div id="llm-output" class="h-64 overflow-y-auto bg-gray-900 p-3 rounded border text-sm mb-4 scroll-container"></div>
+            <div id="llm-output" class="h-64 overflow-y-auto bg-gray-900 bg-opacity-50 p-3 rounded border text-sm mb-4 scroll-container"></div>
             <div class="flex space-x-2">
-              <input type="text" id="user-input" class="flex-1 px-3 py-2 bg-gray-700 border border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="Type your command...">
+              <input type="text" id="user-input" class="flex-1 px-3 py-2 bg-gray-700 bg-opacity-70 border border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="Type your command...">
               <button id="send-btn" class="bg-green-600 hover:bg-green-700 px-4 py-2 rounded-md font-medium transition-colors">Send</button>
             </div>
           </div>
 
           <!-- Raw Log -->
-          <div class="bg-gray-800 rounded-lg p-4">
+          <div class="bg-gray-800 bg-opacity-50 rounded-lg p-4">
             <h3 class="text-lg font-semibold mb-2">Raw MUD Messages</h3>
-            <div id="raw-log" class="h-64 overflow-y-auto bg-gray-900 p-3 rounded border text-sm font-mono scroll-container"></div>
+            <div id="raw-log" class="h-64 overflow-y-auto bg-gray-900 bg-opacity-50 p-3 rounded border text-sm font-mono scroll-container"></div>
             <div class="mt-2 text-sm text-gray-400">
               Status: <span id="connection-status" class="font-medium">Disconnected</span>
             </div>
