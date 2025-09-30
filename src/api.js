@@ -195,7 +195,7 @@ class APIClient {
     debugger;
 
     try {
-      const response = await fetch(this.apiUrl, {
+      const response = await fetch(this.apiUrl + 'v1/chat/completions', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

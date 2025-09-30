@@ -67,7 +67,7 @@ class MudLLMClient {
     this.ui.showLLMLoading();
 
     try {
-      const llmResponse = await this.api.processMessage(rawMessage);
+      const llmResponse = await this.api.processMudOutputMessage(rawMessage);
 
       // remove spinner
       this.ui.clearLLMLoading();
