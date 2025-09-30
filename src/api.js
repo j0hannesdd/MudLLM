@@ -1,9 +1,10 @@
 // API module for LLM integration
 class APIClient {
-  constructor() {
+  constructor(ui) {
     this.apiUrl = 'https://gateway.ai.devboost.com/';
     this.token = null;
     this.imageGenerating = false;
+    this.ui = ui;
   }
 
   setToken(token) {
@@ -17,6 +18,7 @@ class APIClient {
 
     // fire and forgett to generate an image
     this.processMessageForImage(inputMessage);
+    this.processMessageForActions(inputMessage);
 
     // get the enriched text
     var result = this.enrichMudOutputText(inputMessage);
@@ -55,6 +57,45 @@ class APIClient {
 
       const data = await response.json();
       return data.choices?.[0]?.message?.content || 'No response from LLM';
+    } catch (error) {
+      console.error('API request error:', error);
+      return `Error processing message: ${error.message}`;
+    }
+
+  }
+
+  async processMessageForActions(inputMessage) {
+
+    try {
+      const response = await fetch(this.apiUrl + 'v1/chat/completions', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${this.token}`
+        },
+        body: JSON.stringify({
+          model: 'DevBoost/OpenAI/gpt-4.1-mini',
+          messages: [
+            {
+              role: 'system',
+              content: 'You are an assistant that suggests relevant next actions for a text-based MUD game interface. You always respond ONLY with a minimal JSON object (Map), where each key is a valid MUD command the player might type next, and each value is the brief button text for the action. Never add extra explanation, text, or formatting—output the JSON only.'
+            },
+            {
+              role: 'user',
+              content: `Here is the latest game log: ${inputMessage}`
+            }
+          ]
+        })
+      });
+
+      if (!response.ok) {
+        throw new Error(`API request failed: ${response.status} ${response.statusText}`);
+      }
+
+      const data = await response.json();
+      const responseJson = data.choices?.[0]?.message?.content || 'No response from LLM';
+      const actions = JSON.parse(responseJson);
+      this.ui.setQuickActions(actions);
     } catch (error) {
       console.error('API request error:', error);
       return `Error processing message: ${error.message}`;

@@ -6,12 +6,13 @@ import Mud from './mud.js'
 class MudLLMClient {
   constructor() {
     this.ui = new UI();
-    this.api = new APIClient();
+    this.api = new APIClient(this.ui);
     this.mud = new Mud(this.ui, this.api, this.handleMudMessage.bind(this));
     
     // Bind UI callbacks
     this.ui.onConnect = this.handleConnect.bind(this);
     this.ui.onSendMessage = this.handleSendMessage.bind(this);
+    this.ui.onQuickAction = this.handleAction.bind(this);
     
     console.log('MudLLM Client initialized');
   }
@@ -99,6 +100,20 @@ class MudLLMClient {
     
     // Clear input
     this.ui.clearInput();
+  }
+
+  handleAction(action) {
+    console.log('Action triggered:', action);
+    if (!this.mud.isConnected) {
+      this.ui.showError('Not connected to MUD');
+      return;
+    }
+    
+    // Show user message in LLM output
+    this.ui.addLLMMessage(action, true);
+    
+    // Send to MUD
+    this.mud.sendToMUD(action);
   }
 }
 
