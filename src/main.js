@@ -2,6 +2,11 @@ import './styles.css'
 import UI from './ui.js'
 import APIClient from './api.js'
 
+function stripAnsi(str) {
+  // Matches all ANSI escape codes
+  return str.replace(/\x1B\[[0-?]*[ -/]*[@-~]/g, '');
+}
+
 class MudLLMClient {
   constructor() {
     this.ui = new UI();
@@ -70,7 +75,8 @@ class MudLLMClient {
         if(bytes[0] === 255) {
           return;
         }
-        const text = await event.data.text();
+        let text = await event.data.text();
+        text = stripAnsi(text);
         console.log(event, text);
         this.handleMudMessage(text);
       };
@@ -115,7 +121,6 @@ class MudLLMClient {
     try {
       // Process with LLM
       const llmResponse = await this.api.processMessage(rawMessage);
-      await this.api.processMessageForImage(rawMessage);
       this.ui.addLLMMessage(llmResponse, false);
     } catch (error) {
       console.error('Error processing message with LLM:', error);
