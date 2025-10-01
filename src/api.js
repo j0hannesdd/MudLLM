@@ -27,24 +27,26 @@ class APIClient {
 
   }
 
-  async processMudOutputMessage(inputMessage) {
+  async processMudOutputMessage(mudMessage) {
     if (!this.token) {
       throw new Error('API token not set');
     }
 
+    if (this.mostRecentMudMessages.length == 5) {
+      this.mostRecentMudMessages.shift();
+    }
+    this.mostRecentMudMessages.push(mudMessage);
+
+
     // fire and forgett to generate an image
-    this.processMessageForImage(inputMessage);
-    this.processMessageForActions(inputMessage);
+    this.processMessageForImage(mudMessage);
+    this.processMessageForActions(mudMessage);
 
     // get the enriched text
-    var result = await this.enrichMudOutputText(inputMessage);
+    var result = await this.enrichMudOutputText(mudMessage);
     // this.readOutLoud(result);
 
-    if (this.mostRecentMudMessages.length == 5)
-      this.mostRecentMudMessages.shift();
-    this.mostRecentMudMessages.push(inputMessage);
     return result;
-
   }
 
   async enrichMudOutputText(inputMessage) {
@@ -104,7 +106,7 @@ class APIClient {
   }
 
   async processMessageForActions(inputMessage) {
-
+    console.log(this.mostRecentMudMessages)
     try {
       const response = await fetch(this.apiUrl + 'v1/chat/completions', {
         method: 'POST',
@@ -128,7 +130,7 @@ class APIClient {
             },
             {
               role: 'user',
-              content: `Here is the latest game log: ${inputMessage}`
+              content: `Here is the latest game log: ${this.mostRecentMudMessages.concat('\n')}`
             }
           ]
         })
